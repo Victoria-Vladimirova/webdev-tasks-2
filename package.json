@@ -2,9 +2,11 @@
   "private": true,
   "dependencies": {
     "jscs": "2.2.1",
-    "mongodb": "^2.1.7"
+    "mongodb": "^2.1.7",
+    "sinon": "^1.17.3"
   },
   "scripts": {
+    "test": "npm run lint && mocha test/*",
     "lint": "jscs ."
   }
 }
