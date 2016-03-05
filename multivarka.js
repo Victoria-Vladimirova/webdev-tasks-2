@@ -26,6 +26,8 @@ var QueryBuilder = function (url, client) {
 
     this._url = url;
 
+    this._condition = {};
+
     /**
      * Задает имя коллекции в MongoDB
      * @param collection имя коллекции в MongoDB
@@ -78,9 +80,15 @@ var ConditionStep = function (builder) {
      * @private
      */
     var _setCondition = function (negative, positive) {
-        var condition = {};
-        condition[builder._field] = builder._isNot ? negative : positive;
-        builder._condition = condition;
+        var value = builder._isNot ? negative : positive;
+        var fieldCondition = builder._condition[builder._field];
+        if (fieldCondition) {
+            Object.keys(value).forEach(function (key) {
+                fieldCondition[key] = value[key];
+            });
+        } else {
+            builder._condition[builder._field] = value;
+        }
         return new ActionStep(builder);
     };
 
@@ -137,20 +145,17 @@ var ConditionStep = function (builder) {
  */
 var ActionStep = function (builder) {
 
-    // проверяем, что ещё не было вызова where
+    /**
+     * Задает поле, по которому будет осуществляться сравнение
+     * @param field поле для сравнения
+     * @returns {ConditionStep} объект для следующего шага — выбора условия
+     */
+    this.where = function (field) {
+        builder._field = field;
+        return new ConditionStep(builder);
+    };
+
     if (!builder._field) {
-
-        /**
-         * Задает поле, по которому будет осуществляться сравнение
-         * разрешаем вызывать where только один раз в цепочке
-         * @param field поле для сравнения
-         * @returns {ConditionStep} объект для следующего шага — выбора условия
-         */
-        this.where = function (field) {
-            builder._field = field;
-            return new ConditionStep(builder);
-        };
-
         /**
          * Завершающее действие — добавляет запись в коллекцию
          * Может быть вызван только если не было вызова where

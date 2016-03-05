@@ -217,4 +217,60 @@ describe('Тестирование multivarka', function () {
                     {multi: true}).calledOnce);
             });
     });
+    describe('Проверка нескольких условий', function () {
+        it('Проверка moreThan, not equal', function () {
+
+            var client = clientAPI();
+            var connectSpy = sinon.spy(client, 'connect');
+            var collectionSpy = sinon.spy(client, 'collection');
+            var findSpy = sinon.spy(client, 'find');
+
+            multivarka.server('fakeurl', client)
+                .collection('students')
+                .where('grade').moreThan(4)
+                .where('group').not().equal('ИТ-41')
+                .find(function () {
+                    assert(connectSpy.withArgs('fakeurl').calledOnce);
+                    assert(collectionSpy.withArgs('students').calledOnce);
+                    assert(findSpy.withArgs({grade: {$gt: 4}, group: {$ne: 'ИТ-41'}}).calledOnce);
+                });
+        });
+        it('Проверка moreThan, include', function () {
+
+            var client = clientAPI();
+            var connectSpy = sinon.spy(client, 'connect');
+            var collectionSpy = sinon.spy(client, 'collection');
+            var findSpy = sinon.spy(client, 'find');
+
+            multivarka.server('fakeurl', client)
+                .collection('students')
+                .where('grade').moreThan(4)
+                .where('group').include(['ПИ-301', 'ПИ-302', 'КБ-301'])
+                .find(function () {
+                    assert(connectSpy.withArgs('fakeurl').calledOnce);
+                    assert(collectionSpy.withArgs('students').calledOnce);
+                    assert(findSpy.withArgs({grade: {$gt: 4}, group:
+                    {$in: ['ПИ-301', 'ПИ-302', 'КБ-301']}}).calledOnce);
+                });
+        });
+        it('Проверка moreThan, lessThan, include', function () {
+
+            var client = clientAPI();
+            var connectSpy = sinon.spy(client, 'connect');
+            var collectionSpy = sinon.spy(client, 'collection');
+            var findSpy = sinon.spy(client, 'find');
+
+            multivarka.server('fakeurl', client)
+                .collection('students')
+                .where('grade').moreThan(1)
+                .where('grade').lessThan(4)
+                .where('group').include(['ПИ-301', 'ПИ-302'])
+                .find(function () {
+                    assert(connectSpy.withArgs('fakeurl').calledOnce);
+                    assert(collectionSpy.withArgs('students').calledOnce);
+                    assert(findSpy.withArgs({grade: {$gt: 1, $lt: 4}, group:
+                    {$in: ['ПИ-301', 'ПИ-302']}}).calledOnce);
+                });
+        });
+    });
 });
