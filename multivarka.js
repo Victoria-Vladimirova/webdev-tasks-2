@@ -51,7 +51,8 @@ var QueryBuilder = function (url, client) {
                 if (err) {
                     callback(err);
                 } else {
-                    action.call(builder, db.collection(builder._collectionName), function (err, data) {
+                    action.call(builder, db.collection(builder._collectionName),
+                        function (err, data) {
                         callback(err, data);
                         db.close();
                     });
