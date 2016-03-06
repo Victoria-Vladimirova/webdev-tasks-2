@@ -46,17 +46,21 @@ var QueryBuilder = function (url, client) {
      * @private
      */
     this._connect = function (callback, action) {
-        client.connect(builder._url, function (err, db) {
-            if (err) {
-                callback(err);
-            } else {
-                action.call(builder, db.collection(builder._collectionName), function (err, data) {
-                    callback(err, data);
-                    db.close();
-                });
-            }
-        });
-        return builder;
+        try {
+            client.connect(builder._url, function (err, db) {
+                if (err) {
+                    callback(err);
+                } else {
+                    action.call(builder, db.collection(builder._collectionName), function (err, data) {
+                        callback(err, data);
+                        db.close();
+                    });
+                }
+            });
+            return builder;
+        } catch (e) {
+            callback(e);
+        }
     };
 };
 
