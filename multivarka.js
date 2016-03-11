@@ -20,6 +20,10 @@ module.exports.server = function (url, client) {
  */
 var QueryBuilder = function (url, client) {
 
+    if (!url || typeof url !== 'string') {
+        throw new Error('Параметр \'url\' задан неверно');
+    }
+
     var builder = this;
 
     client = client || MongoClient;
@@ -53,9 +57,9 @@ var QueryBuilder = function (url, client) {
                 } else {
                     action.call(builder, db.collection(builder._collectionName),
                         function (err, data) {
-                        callback(err, data);
-                        db.close();
-                    });
+                            callback(err, data);
+                            db.close();
+                        });
                 }
             });
             return builder;
@@ -73,7 +77,7 @@ var QueryBuilder = function (url, client) {
  */
 var ConditionStep = function (builder) {
 
-    var where = this;
+    var that = this;
 
     builder._isNot = false;
 
@@ -103,7 +107,7 @@ var ConditionStep = function (builder) {
      */
     this.not = function () {
         builder._isNot = !builder._isNot;
-        return where;
+        return that;
     };
 
     /**

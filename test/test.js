@@ -46,42 +46,12 @@ var clientAPI = function () {
     };
 };
 
-var buggyClientAPI = function () {
-    return {
-
-        connect: function (url, callback) {
-            throw new Error;
-        },
-
-        close: function () {
-        },
-
-        collection: function () {
-            return this;
-        },
-
-        find: function () {
-            return this;
-        },
-
-        toArray: function (callback) {
-            callback(null, []);
-        }
-    };
-};
-
 describe('Тестирование multivarka', function () {
     it('Проверка подключения к бд при неправильном url', function () {
 
-        var client = buggyClientAPI();
-        var connectSpy = sinon.spy(client, 'connect');
-
-        multivarka.server('', client)
-            .collection('students')
-            .where('group').equal('КБ-301')
-            .find(function () {
-                assert(connectSpy.withArgs('').calledOnce);
-            });
+        assert.throws(function () {
+            multivarka.server('');
+        }, Error);
     });
     it('Проверка equal', function () {
 
